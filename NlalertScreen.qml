@@ -25,11 +25,16 @@ Screen {
 				fillScreenModel();
 				nlalertSimpleList.initialView();
 			} else {
+				nlAlertModelScreen.clear();
 				noAlertsText.visible = true;
-				if (app.nlalertFilterEnabled) {
-					noAlertsText.text = "Geen meldingen - filter aan.";
+				if (app.nlalartLastResponseStatus == 200) {
+					if (app.nlalertFilterEnabled) {
+						noAlertsText.text = "Geen meldingen - filter aan";
+					} else {
+						noAlertsText.text = "Geen meldingen";
+					}
 				} else {
-					noAlertsText.text = "Geen meldingen";
+					noAlertsText.text = "Even wachten op gegevens";
 				}
 			}
 		}
@@ -69,10 +74,8 @@ Screen {
 
 	function buttonsEnabled(enabled) {
 		if (enabled) {
-//			refreshButton.state = 'up'
 			filterButton.state = app.nlalertFilterEnabled ? 'selected' : 'up';
 		} else {
-//			refreshButton.state = 'disabled';
 			filterButton.state = 'disabled';
 		}
 	}
@@ -136,6 +139,18 @@ Screen {
         return false;
     }
 
+	function refreshData() {
+		console.log("********* NLAlert refreshData");
+		refreshButton.enabled = false;
+		nlAlertModelScreen.clear();
+		nlAlertModel.clear();
+		app.nlalartLastResponseStatus = 0;  // reset otherwise wrong messages shown
+		updateNlalertFilter();				// Update screen
+		app.readReverseGEOCache();
+		app.refreshNLAlertData();			// Refresh data
+		setEnableRefreshButtonTimer.start();
+	}
+
 	Item {
 		id: header
 		height: isNxt ? 55 : 45
@@ -191,10 +206,7 @@ Screen {
 			iconSource: "qrc:/tsc/refresh.svg"
 			onClicked: {
 				// Get new NL-alert data
-			   refreshButton.enabled = false;
-			   app.readReverseGEOCache();
-			   app.refreshNLAlertData();
-			   setEnableRefreshButtonTimer.start();
+				refreshData();
 			}
 		}
 	}

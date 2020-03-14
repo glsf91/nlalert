@@ -178,6 +178,7 @@ App {
     function refreshNLAlertData() {
         console.log("********* NLAlert refreshNL-AlertData started");
 
+		nlalertDataRead = false;
         tileStatus = "Ophalen gegevens.....";
 		nlalertScreen.nlAlertListModel.clear();
 

@@ -23,8 +23,8 @@ Screen {
 
 	onCustomButtonClicked: {
 		app.saveSettings();
-		app.refreshNLAlertData();
 		hide();
+		app.nlalertScreen.refreshData();
 	}
 
 	function validateCoordinate(text, isFinalString) {
