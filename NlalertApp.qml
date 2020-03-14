@@ -3,7 +3,6 @@ import qb.components 1.0
 import qb.base 1.0
 import FileIO 1.0
 
-// ToDo uniek emailadres!!!
 
 App {
 	id: nlalertApp

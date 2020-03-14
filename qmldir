@@ -1,0 +1,4 @@
+module apps.nlalert
+NlalertScreen 1.0 NlalertScreen.qml
+NlalertApp 1.0 NlalertApp.qml
+NlalertDelegate 1.0 NlalertDelegate.qml
