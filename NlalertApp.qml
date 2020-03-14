@@ -3,16 +3,15 @@ import qb.components 1.0
 import qb.base 1.0
 import FileIO 1.0
 
-
 App {
 	id: nlalertApp
 
-	property url tileUrl : "NlalertTile.qml";
-	property url thumbnailIcon: "qrc:/tsc/nlalert-icon.png";   
-
+	property url tileUrl : "NlalertTile.qml"
+	property url thumbnailIcon: "qrc:/tsc/nlalertSmallNoBG.png"
+	
 	property url nlalertScreenUrl : "NlalertScreen.qml"
 	property url nlalertConfigurationScreenUrl : "NlalertConfigurationScreen.qml"
-	property url trayUrl : "NlalertTray.qml";
+	property url trayUrl : "NlalertTray.qml"
 
 	property NlalertConfigurationScreen nlalertConfigurationScreen
 	property NlalertScreen nlalertScreen

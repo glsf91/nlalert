@@ -10,7 +10,7 @@ Tile {
 
 	Image {
 		id: nlalertIcon1
-		source: "file:///qmf/qml/apps/nlalert/drawables/nlalert-icon.png"
+		source: "file:///qmf/qml/apps/nlalert/drawables/nlalertTile.png"
 		anchors {
 			baseline: parent.top
 			baselineOffset: 10
@@ -25,7 +25,7 @@ Tile {
 
 	Text {
 		id: nlalertIcon1Text
-		text: "nl-Alert"
+		text: "nl-alert"
 		anchors {
 			top: nlalertIcon1.bottom
 			horizontalCenter: parent.horizontalCenter

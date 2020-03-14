@@ -16,7 +16,7 @@ SystrayIcon {
 	Image {
 		id: imgNewMessage
 		anchors.centerIn: parent
-		source: "file:///qmf/qml/apps/nlalert/drawables/nlalert-icon.png"
+		source: "file:///qmf/qml/apps/nlalert/drawables/nlalertSmallNoBG.png"
 		width: 25
 		height: 25
 		fillMode: Image.PreserveAspectFit
