@@ -1,3 +1,6 @@
+Version 1.0.1
+- changed Tile image to greyscale
+
 Version 1.0
 - initial release
 
