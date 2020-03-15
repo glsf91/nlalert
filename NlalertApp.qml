@@ -12,9 +12,11 @@ App {
 	property url nlalertScreenUrl : "NlalertScreen.qml"
 	property url nlalertConfigurationScreenUrl : "NlalertConfigurationScreen.qml"
 	property url trayUrl : "NlalertTray.qml"
+	property url alarmPopupUrl: "NlalertAlarmPopup.qml"
 
 	property NlalertConfigurationScreen nlalertConfigurationScreen
 	property NlalertScreen nlalertScreen
+	property Popup alarmPopup
 
 	// settings
     property real nlalertownLatitude  : 51.00
@@ -56,6 +58,9 @@ App {
 	// used for max short retries
 	property int nlalertRetry : 0
 
+	// remember last notification for which message id 
+	property string lastNotifyId : ""
+
     property bool debug : false
 
 
@@ -82,6 +87,11 @@ App {
 	FileIO {
 		id: nlalertResponseFile
 		source: "file:///tmp/nlalert-response.json"
+ 	}
+
+	FileIO {
+		id: nlalertLastAlarmFile
+		source: "file:///tmp/nlalert-last-alarm.json"
  	}
 
 	Component.onCompleted: {
@@ -112,6 +122,8 @@ App {
 		} catch(e) {
 		}
 
+		readNLAlertLastAlarmId();
+		
 		nlalertTimer.start();
 
 	}
@@ -121,6 +133,7 @@ App {
 		registry.registerWidget("screen", nlalertScreenUrl, this, "nlalertScreen");
 		registry.registerWidget("screen", nlalertConfigurationScreenUrl, this, "nlalertConfigurationScreen");
 		registry.registerWidget("systrayIcon", trayUrl, this, "nlalertTray");
+		registry.registerWidget("popup", alarmPopupUrl, this, "alarmPopup");
 	}
 
 	function saveSettings() {
@@ -184,8 +197,10 @@ App {
 
 		// just for debugging an reading NL-Alert data from file
         if (debug) {
+			nlalertDataRead = true;
             readNLAlertResponse();  // debug
-             console.log("********* NLAlert refreshNL-AlertData debug on");
+            console.log("********* NLAlert refreshNL-AlertData debug on");
+			tileStatus = "Debug aan.....";
             return;
         }
 
@@ -249,6 +264,41 @@ App {
         xmlhttp.send();
     }
 
+
+	// Popup an alarm when NL-Alert in local range received and not yet notified
+	function notifyUser() {
+		var n;
+		console.log("********* NLAlert notifyUser");
+		
+		// Only get the first NL-Alert message in the local range
+        for (n=0; n < nlalertScreen.nlAlertListModel.count; n++) {
+            if (nlalertScreen.nlAlertListModel.get(n).local) {
+				console.log("********* NLAlert notifyUser local message found:" +  nlalertScreen.nlAlertListModel.get(n).alertId);
+				break;
+			}
+		}
+		
+		// if there is a message in the local range and not alarm already done
+		if (n < nlalertScreen.nlAlertListModel.count) {
+			if ( nlalertScreen.nlAlertListModel.get(n).alertId != lastNotifyId ) {
+				screenStateController.wakeup();
+				alarmPopup.messageDescription = nlalertScreen.nlAlertListModel.get(n).description;
+				alarmPopup.messageLocation = nlalertScreen.nlAlertListModel.get(n).alertLocation;
+				alarmPopup.messageTime = nlalertScreen.nlAlertListModel.get(n).alertTime;
+				alarmPopup.messageDistance = nlalertScreen.nlAlertListModel.get(n).distance;
+				
+				if (alarmPopup.visible == false) {
+					console.log("********* NLAlert notifyUser start alarmPopup" );
+					alarmPopup.show();
+					stage.openFullscreen(nlalertScreenUrl);
+				}
+				lastNotifyId = nlalertScreen.nlAlertListModel.get(n).alertId;
+				saveNLAlertLastAlarmId(lastNotifyId);
+			}
+		}
+	}
+
+
 	function getHoursBetweenDates(endDate, startDate) {
 		var diff = endDate.getTime() - startDate.getTime();
 		return (diff / (60 * 60 * 1000));
@@ -270,11 +320,14 @@ App {
 
 		try {  // in case empty JSON
 			for (var i = 0; i < nlAlertData['data'].length; i++) {
+				var localRange = false;
+				var id = nlAlertData['data'][i]['id'];
 				var time = nlAlertData['data'][i]['time'];
 				var status = nlAlertData['data'][i]['status'];
 				var description = nlAlertData['data'][i]['description'];
 				var areaCenter = nlAlertData['data'][i]['areaCenter'];
 
+				console.log("********* NLAlert processNlAlertData id: " + id );
 				console.log("********* NLAlert processNlAlertData time: " + time );
 				console.log("********* NLAlert processNlAlertData status: " + status );
 				console.log("********* NLAlert processNlAlertData description: " + description );
@@ -291,6 +344,7 @@ App {
 				if ( distance <= nlalertLocalRange && (timediff <= nlalertShowTileAlertsDurationHours || nlalertShowTileAlertsDurationHours == 0 )) {
 					nlalertLocalAlerts = nlalertLocalAlerts + 1;
 					nlalertIconShow = true;
+					localRange = true;
 				}
 				// Count alerts in regio range 
 				if ( distance <= nlalertRegioRange && (timediff <= nlalertShowTileAlertsDurationHours || nlalertShowTileAlertsDurationHours == 0 ) ) {
@@ -301,17 +355,20 @@ App {
 					nlalertAllAlerts = nlalertAllAlerts + 1;
 				}
 
-				nlalertScreen.nlAlertListModel.append({ alertTime: time,
+				nlalertScreen.nlAlertListModel.append({ alertId: id,
+									 alertTime: time,
 									 latitude: areaCenter.latitude,
 									 longitude : areaCenter.longitude,
 									 alertLocation: "",
 									 description: description,
-									 distance: distance});
+									 distance: distance,
+									 local: ((localRange) ? true : false) });
 			}
 		} catch(e) {
+			console.log("********* NLAlert processNlAlertData catch: " + e );
 		}
 
-		//console.log("********* NLAlert processNlAlertData count in model: " + nlalertScreen.nlAlertListModel.count );
+//		console.log("********* NLAlert processNlAlertData count in model: " + nlalertScreen.nlAlertListModel.count );
 
         if (nlalertScreen.nlAlertListModel.count > 0) {
             processReverseGEOCache();
@@ -320,10 +377,12 @@ App {
             } else {
 				tileStatus = "Gereed";
 				nlalertUpdated();
+				notifyUser();
             }
         } else {
 			// no NL-Alerts received
 			nlalertUpdated();
+
 			tileStatus = "Gereed";
 		}
 
@@ -480,6 +539,24 @@ App {
 			console.log("********* NLAlert readNLAlertResponse file data found");
 			processNlAlertData();
 		}
+    }
+
+    function readNLAlertLastAlarmId(){   
+		try {
+			lastNotifyId = nlalertLastAlarmFile.read().trim();
+			
+		} catch(e) {
+			lastNotifyId = "";
+		}
+		console.log("********* NLAlert readNLAlertLastAlarm id: " + lastNotifyId );
+    }
+
+    function saveNLAlertLastAlarmId(id){  
+		console.log("********* NLAlert saveNLAlertLastAlarmId");
+
+		var doc = new XMLHttpRequest();
+		doc.open("PUT", "file:///tmp/nlalert-last-alarm.json");
+		doc.send(id);
     }
 
 	// Timer for read reverse GEO location one by one an not to fast because of policy rate limit
