@@ -1,3 +1,9 @@
+Version 1.1.0
+- added alarm popup when receiving NL-Alert message in local range
+
+Version 1.0.1
+- changed Tile image to greyscale
+
 Version 1.0
 - initial release
 
