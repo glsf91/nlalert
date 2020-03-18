@@ -88,6 +88,7 @@ Screen {
 										saveLat(nameArr[0]);
 										saveLon(nameArr[1]);
 										qrCodeTimer.running = false;
+										qdialog.showDialog(qdialog.SizeLarge, "NL alert configurate mededeling", "Lengtegraad " + nameArr[1] + " en breedtegraad " + nameArr[0] + " ontvangen vanuit telefoon");	
 				}
 			}
 		}
