@@ -23,9 +23,14 @@ Screen {
 
 	onCustomButtonClicked: {
 		app.saveSettings();
+		qrCodeTimer.running = false;
 		hide();
 		app.nlalertScreen.refreshData();
 	}
+
+        onHidden: {
+                qrCodeTimer.running = false;
+        }
 
 	function validateCoordinate(text, isFinalString) {
 		return null;

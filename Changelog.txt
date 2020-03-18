@@ -1,3 +1,6 @@
+Version 1.1.1
+- qrcode timer fix 
+
 Version 1.1.0
 - added alarm popup when receiving NL-Alert message in local range
 
