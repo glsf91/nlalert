@@ -7,26 +7,27 @@ Popup {
 	id: alarmPopup
 
 	property string curState: ""
-	property string messageDescription : ""
-	property string messageLocation : ""
-	property string messageTime : ""
-	property string messageDistance : ""
+	property string messageText : ""
+	property bool regio : false
 	
 	onShown: {
 		bigText.text = "NL-Alert alarm";
-		background.color = "#cc3300"; // colors.smokedetectorAlarmPopupBg
-		smallText.text = messageTime + " " + messageLocation + " " + messageDistance + " km\n" + messageDescription;
+		if (regio) {
+			bigText.text = bigText.text + " (regio)";
+		}
+		background.color = "#cc3300"; 
+		smallText.text = messageText;
 	
 	}
 
 	Rectangle {
 		id: background
 		anchors.fill: parent
-		color: "#cc3300"; // colors.smokedetectorAlarmPopupBg
+		color: "#cc3300"; 
 	}
 
 	Image {
-		id: smokeDetectorImg
+		id: nlalertImg
 		anchors {
 			horizontalCenter: parent.horizontalCenter
 			top: parent.top
