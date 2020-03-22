@@ -58,7 +58,7 @@ Screen {
 		if(!app.nlalertDataRead) return str;
 
 		if (app.nlalertFilterEnabled) {
-			str += "NL-Alert (regio): ";
+			str += "NL-Alert (Relevant voor u en in de regio): ";
 		} else {
 			str += "NL-Alert (alles): ";
 		}

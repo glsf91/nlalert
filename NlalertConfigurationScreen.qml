@@ -14,7 +14,6 @@ Screen {
 		lonLabel.inputText = app.nlalertownLongitude;
 		latLabel.inputText = app.nlalertownLatitude;
 		rangeRegioLabel.inputText = app.nlalertRegioRange;
-		rangeLocalLabel.inputText = app.nlalertLocalRange;
 		durationLabel.inputText = app.nlalertShowTileAlertsDurationHours;
 		qrCodeID = Math.random().toString(36).substring(7);
 		qrCode.content = "https://qutility.nl/geolocation/getlocation.php?id="+qrCodeID;
@@ -58,14 +57,6 @@ Screen {
 		if (text) {
 			app.nlalertRegioRange = parseInt(text);
 			rangeRegioLabel.inputText = app.nlalertRegioRange;
-	   		app.saveSettings();
-		}
-	}
-
-	function saveLocalRange(text) {
-		if (text) {
-			app.nlalertLocalRange = parseInt(text);
-			rangeLocalLabel.inputText = app.nlalertLocalRange;
 	   		app.saveSettings();
 		}
 	}
@@ -224,65 +215,13 @@ Screen {
 
 	Text {
 		id: uitlegRegioRange
-		text: "Geeft de afstand in km aan tot het NL-Alert in een rechte lijn, welke als regio moet worden gezien."
+		text: "Geeft de afstand in km aan tot het NL-Alert centrum punt in een rechte lijn, welke als regio moet worden gezien. Wordt ook meegenomen in de alarm popup."
        		width: isNxt ? 500 : 400
 			wrapMode: Text.WordWrap
 		anchors {
 			left: rangeRegioButton.right
 			leftMargin: 20
 			top: rangeRegioLabel.top
-		}
-		font {
-			family: qfont.semiBold.name
-			pixelSize: isNxt ? 20 : 16
-		}
-		color: colors.rbTitle
-	}
-
-	EditTextLabel4421 {
-		id: rangeLocalLabel
-		width: lonLabel.width
-		height: isNxt ? 45 : 35
-		leftText: "Range lokaal:"
-		leftTextAvailableWidth: isNxt ?  175 : 140
-
-		anchors {
-			left: lonLabel.left
-			top: rangeRegioLabel.bottom
-			topMargin: 12
-		}
-
-		onClicked: {
-			qnumKeyboard.open("Range lokaal in km", rangeLocalLabel.inputText, app.nlalertLocalRange, 1 , saveLocalRange, validateCoordinate);
-		}
-	}
-
-	IconButton {
-		id: rangeLocalButton
-		width: isNxt ? 50 : 40
-		iconSource: "qrc:/tsc/edit.png"
-
-		anchors {
-			left: rangeLocalLabel.right
-			leftMargin: 6
-			top: rangeLocalLabel.top
-		}
-
-		topClickMargin: 3
-		onClicked: {
-			qnumKeyboard.open("Range lokaal in km", rangeLocalLabel.inputText, app.nlalertLocalRange, 1 , saveLocalRange, validateCoordinate);
-		}
-	}
-
-	Text {
-		id: uitlegLocalRange
-		text: "Geeft de afstand in km aan tot het NL-Alert in een rechte lijn, welke als lokaal moet worden gezien."
-       		width: isNxt ? 500 : 400
-			wrapMode: Text.WordWrap
-		anchors {
-			left: rangeLocalButton.right
-			leftMargin: 20
-			top: rangeLocalLabel.top
 		}
 		font {
 			family: qfont.semiBold.name
@@ -301,8 +240,8 @@ Screen {
 
 		anchors {
 			left: lonLabel.left
-			top: rangeLocalLabel.bottom
-			topMargin: 12
+			top: rangeRegioLabel.bottom
+			topMargin: 50
 		}
 
 		onClicked: {
