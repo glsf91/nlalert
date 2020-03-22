@@ -241,7 +241,7 @@ Screen {
 		anchors {
 			left: lonLabel.left
 			top: rangeRegioLabel.bottom
-			topMargin: 50
+			topMargin: isNxt ? 65 : 50
 		}
 
 		onClicked: {
