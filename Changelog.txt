@@ -1,3 +1,6 @@
+Version 1.2.0
+- changed alerting from distance NL-Alert center to NL-Alert area
+
 Version 1.1.2
 - Add qrcode received values message 
 

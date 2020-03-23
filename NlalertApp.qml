@@ -21,8 +21,7 @@ App {
 	// settings
     property real nlalertownLatitude  : 51.00
     property real nlalertownLongitude : 5.6
-    property int nlalertRegioRange    : 30
-    property int nlalertLocalRange    : 5
+    property int nlalertRegioRange    : 0
     property int nlalertShowTileAlertsDurationHours : 0
     property bool enableSystray : false
 
@@ -31,9 +30,9 @@ App {
     property variant geoReverseDataCache
 
 	// for Tile
-    property int nlalertLocalAlerts  : 0
-    property int nlalertRegioAlerts  : 0
-    property int nlalertAllAlerts    : 0
+    property int nlalertInsideAreaAlerts  : 0
+    property int nlalertOutsideAreaAlerts : 0
+    property int nlalertRegioAlerts       : 0
 	property bool nlalertIconShow : false
     property string tileStatus : "Wachten op data....."
 
@@ -107,7 +106,6 @@ App {
 			nlalertownLatitude = nlalertSettingsJson['Latitude'];		
 			nlalertownLongitude = nlalertSettingsJson['Longitude'];		
 			nlalertRegioRange = nlalertSettingsJson['RegioRange'];		
-			nlalertLocalRange = nlalertSettingsJson['LocalRange'];		
 			nlalertShowTileAlertsDurationHours = nlalertSettingsJson['Duration'];	
 
 			if (nlalertSettingsJson['filterEnabled'] == "Yes") {
@@ -158,7 +156,6 @@ App {
 			"Latitude"      : nlalertownLatitude,
 			"Longitude"     : nlalertownLongitude,
 			"RegioRange"    : nlalertRegioRange,
-			"LocalRange"    : nlalertLocalRange,
 			"Duration"      : nlalertShowTileAlertsDurationHours,
  			"TrayIcon"      : tmpTrayIcon,
 			"filterEnabled" : tmpFilterEnabled
@@ -265,27 +262,37 @@ App {
     }
 
 
-	// Popup an alarm when NL-Alert in local range received and not yet notified
+	// Popup an alarm when NL-Alert in area range received and not yet notified
 	function notifyUser() {
 		var n;
 		console.log("********* NLAlert notifyUser");
 		
-		// Only get the first NL-Alert message in the local range
+		// Only get the first NL-Alert message in the area or regio range
         for (n=0; n < nlalertScreen.nlAlertListModel.count; n++) {
-            if (nlalertScreen.nlAlertListModel.get(n).local) {
-				console.log("********* NLAlert notifyUser local message found:" +  nlalertScreen.nlAlertListModel.get(n).alertId);
+            if (nlalertScreen.nlAlertListModel.get(n).regio || nlalertScreen.nlAlertListModel.get(n).inArea) {
+				console.log("********* NLAlert notifyUser regio or area message found:" +  nlalertScreen.nlAlertListModel.get(n).alertId);
 				break;
 			}
 		}
 		
-		// if there is a message in the local range and not alarm already done
+		// if there is a message in the regio or area range and not alarm already done
 		if (n < nlalertScreen.nlAlertListModel.count) {
 			if ( nlalertScreen.nlAlertListModel.get(n).alertId != lastNotifyId ) {
 				screenStateController.wakeup();
-				alarmPopup.messageDescription = nlalertScreen.nlAlertListModel.get(n).description;
-				alarmPopup.messageLocation = nlalertScreen.nlAlertListModel.get(n).alertLocation;
-				alarmPopup.messageTime = nlalertScreen.nlAlertListModel.get(n).alertTime;
-				alarmPopup.messageDistance = nlalertScreen.nlAlertListModel.get(n).distance;
+				
+				if (nlalertScreen.nlAlertListModel.get(n).regio) {
+					alarmPopup.regio = true;
+					alarmPopup.messageText = nlalertScreen.nlAlertListModel.get(n).alertTime + 
+											 " " + nlalertScreen.nlAlertListModel.get(n).alertLocation + 
+											 " " + nlalertScreen.nlAlertListModel.get(n).distance + " km\n" + 
+											 nlalertScreen.nlAlertListModel.get(n).description;
+
+				} else {
+					alarmPopup.regio = false;
+					alarmPopup.messageText = nlalertScreen.nlAlertListModel.get(n).alertTime + 
+											 " " + nlalertScreen.nlAlertListModel.get(n).alertLocation + 
+											 "\n" + nlalertScreen.nlAlertListModel.get(n).description;
+				}
 				
 				if (alarmPopup.visible == false) {
 					console.log("********* NLAlert notifyUser start alarmPopup" );
@@ -304,28 +311,59 @@ App {
 		return (diff / (60 * 60 * 1000));
 	}
 
+	function isPointInPoly(poly, pt){
+		for(var c = false, i = -1, l = poly.length, j = l - 1; ++i < l; j = i)
+			((poly[i].y <= pt.y && pt.y < poly[j].y) || (poly[j].y <= pt.y && pt.y < poly[i].y))
+			&& (pt.x < (poly[j].x - poly[i].x) * (pt.y - poly[i].y) / (poly[j].y - poly[i].y) + poly[i].x)
+			&& (c = !c);
+		return c;
+	}
+
+	function locationInArea(area,lon,lat){
+		console.log("********* NLAlert processArea" );
+		var points = [];
+		var last;
+
+		for (var i = 0; i < area.length; i++) {
+			points.push({ x: area[i]['longitude'],
+						  y: area[i]['latitude']});
+		}
+		
+		last = points.length - 1;
+
+		// Sometimes no closed polygon in area. Add first point again
+		if (points[last].x != area[0]['longitude'] || points[last].y != area[0]['latitude']) {
+			points.push({ x: area[0]['longitude'],
+						  y: area[0]['latitude']});
+		}
+		
+		return isPointInPoly(points,{x: lon,  y: lat });
+	}
+
     function processNlAlertData(){
 		var distance;
 		var timediff;
 		var nlalertDate;
+		var inArea;
 		
 		var now = new Date();
 		nlalertLastUpdateTime = now.toLocaleString('nl-NL'); 
 
 		// Count for Tile
-		nlalertLocalAlerts = 0;
+		nlalertInsideAreaAlerts = 0;
 		nlalertRegioAlerts = 0;
-		nlalertAllAlerts = 0;
+		nlalertOutsideAreaAlerts = 0;
 		nlalertIconShow = false;
 
 		try {  // in case empty JSON
 			for (var i = 0; i < nlAlertData['data'].length; i++) {
-				var localRange = false;
+				var regioRange = false;
 				var id = nlAlertData['data'][i]['id'];
 				var time = nlAlertData['data'][i]['time'];
 				var status = nlAlertData['data'][i]['status'];
 				var description = nlAlertData['data'][i]['description'];
 				var areaCenter = nlAlertData['data'][i]['areaCenter'];
+				var area = nlAlertData['data'][i]['area'];
 
 				console.log("********* NLAlert processNlAlertData id: " + id );
 				console.log("********* NLAlert processNlAlertData time: " + time );
@@ -333,6 +371,7 @@ App {
 				console.log("********* NLAlert processNlAlertData description: " + description );
 				console.log("********* NLAlert processNlAlertData areaCenter.latitude: " + areaCenter.latitude );
 				console.log("********* NLAlert processNlAlertData areaCenter.longitude: " + areaCenter.longitude );
+				console.log("********* NLAlert processNlAlertData area len: " + area.length );
 
 				nlalertDate = new Date(time);
 				timediff = getHoursBetweenDates(now,nlalertDate);
@@ -340,21 +379,31 @@ App {
 
 				distance = Math.round(haversineDistance(areaCenter.latitude,areaCenter.longitude,nlalertownLatitude,nlalertownLongitude));
 
-				// Count alerts in local range and show icon
-				if ( distance <= nlalertLocalRange && (timediff <= nlalertShowTileAlertsDurationHours || nlalertShowTileAlertsDurationHours == 0 )) {
-					nlalertLocalAlerts = nlalertLocalAlerts + 1;
-					nlalertIconShow = true;
-					localRange = true;
-				}
-				// Count alerts in regio range 
-				if ( distance <= nlalertRegioRange && (timediff <= nlalertShowTileAlertsDurationHours || nlalertShowTileAlertsDurationHours == 0 ) ) {
-					nlalertRegioAlerts = nlalertRegioAlerts + 1;
-				}
-				// Count all alerts 
-				if ( timediff <= nlalertShowTileAlertsDurationHours || nlalertShowTileAlertsDurationHours == 0  ) {
-					nlalertAllAlerts = nlalertAllAlerts + 1;
+				inArea = locationInArea(area,nlalertownLongitude,nlalertownLatitude);
+				if (inArea) {
+					console.log("********* NLAlert processNlAlertData Alert in Area");
+					distance = 0;
+				} else {
+					console.log("********* NLAlert processNlAlertData Alert NOT in Area");
 				}
 
+				// Count alerts in alert area and show icon
+				if ( inArea && (timediff <= nlalertShowTileAlertsDurationHours || nlalertShowTileAlertsDurationHours == 0 )) {
+					nlalertInsideAreaAlerts = nlalertInsideAreaAlerts + 1;
+					nlalertIconShow = true;
+				} else 	{  
+					// count outside area
+					if ( timediff <= nlalertShowTileAlertsDurationHours || nlalertShowTileAlertsDurationHours == 0  ) {
+						nlalertOutsideAreaAlerts = nlalertOutsideAreaAlerts + 1;
+					}
+					// Count alerts in regio range
+					if ( distance <= nlalertRegioRange && (timediff <= nlalertShowTileAlertsDurationHours || nlalertShowTileAlertsDurationHours == 0 ) ) {
+						// Count alerts in regio range 
+						nlalertRegioAlerts = nlalertRegioAlerts + 1;
+						regioRange = true;
+					}
+				}
+				
 				nlalertScreen.nlAlertListModel.append({ alertId: id,
 									 alertTime: time,
 									 latitude: areaCenter.latitude,
@@ -362,7 +411,8 @@ App {
 									 alertLocation: "",
 									 description: description,
 									 distance: distance,
-									 local: ((localRange) ? true : false) });
+									 regio: regioRange,
+									 inArea: inArea});
 			}
 		} catch(e) {
 			console.log("********* NLAlert processNlAlertData catch: " + e );

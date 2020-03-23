@@ -57,13 +57,13 @@ Tile {
 	}
 
 	Text {
-		id: localText
-		text: "Lokaal"
+		id: insideAreaText
+		text: "Relevant voor u"
 		anchors {
 			baseline: parent.top
 			baselineOffset: isNxt ? 62 : 50
 			left: parent.left
-			leftMargin:  isNxt ? 25 : 20 
+			leftMargin:  isNxt ? 15 : 10 
 		}
 		font {
 			family: qfont.bold.name
@@ -74,10 +74,10 @@ Tile {
 	}
 
 	Text {
-		id: localNumber
-		text: app.nlalertLocalAlerts
+		id: insideAreaNumber
+		text: app.nlalertInsideAreaAlerts
 		anchors {
-			top: localText.top
+			top: insideAreaText.top
 			right: parent.right
 			rightMargin:  isNxt ? 25 : 20 
 		}
@@ -90,11 +90,41 @@ Tile {
 	}
 
 	Text {
-		id: regioText
-		text: "Regio"
+		id: outsideAreaText
+		text: "Niet relevant voor u"
 		anchors {
-			left: localText.left
-			top: localText.bottom
+			left: insideAreaText.left
+			top: insideAreaText.bottom
+		}
+		font {
+			family: qfont.bold.name
+			pixelSize: isNxt ? 22 : 18
+		}
+		color: colors.waTileTextColor
+       	visible: !dimState
+	}
+
+	Text {
+		id: outsideAreaNumber
+		text: app.nlalertOutsideAreaAlerts
+		anchors {
+			top: outsideAreaText.top
+			left: insideAreaNumber.left
+		}
+		font {
+			family: qfont.regular.name
+			pixelSize: isNxt ? 18 : 15
+		}
+		color: colors.clockTileColor
+        visible: !dimState
+	}
+
+	Text {
+		id: regioText
+		text: "In uw regio"
+		anchors {
+			left: insideAreaText.left
+			top: outsideAreaText.bottom
 		}
 		font {
 			family: qfont.bold.name
@@ -109,7 +139,7 @@ Tile {
 		text: app.nlalertRegioAlerts
 		anchors {
 			top: regioText.top
-			left: localNumber.left
+			left: insideAreaNumber.left
 		}
 		font {
 			family: qfont.regular.name
@@ -119,41 +149,12 @@ Tile {
         visible: !dimState
 	}
 
-	Text {
-		id: allText
-		text: "Alles"
-		anchors {
-			left: localText.left
-			top: regioText.bottom
-		}
-		font {
-			family: qfont.bold.name
-			pixelSize: isNxt ? 22 : 18
-		}
-		color: colors.waTileTextColor
-       	visible: !dimState
-	}
-
-	Text {
-		id: allNumber
-		text: app.nlalertAllAlerts
-		anchors {
-			top: allText.top
-			left: localNumber.left
-		}
-		font {
-			family: qfont.regular.name
-			pixelSize: isNxt ? 18 : 15
-		}
-		color: colors.clockTileColor
-        visible: !dimState
-	}
 
 	Text {
 		id: statusText
 		text: "Status"
 		anchors {
-			top: allText.bottom
+			top: regioText.bottom
 			horizontalCenter: parent.horizontalCenter
 		}
 		font {
