@@ -13,7 +13,7 @@ Screen {
 
 	// Function (triggerd by a signal) updates the nlalert list model and the header text
 	function updateNlalertList() {
-		console.log("********* NLAlert updateNlalertList");
+		if (app.debugOutput) console.log("********* NLAlert updateNlalertList");
 		
 		if (!app.nlalertDataRead) {
 			noAlertsText.visible = true;
@@ -93,7 +93,7 @@ Screen {
 	}
 
 	onShown: {
-		console.log("********* NLAlert NlalertScreen onShown");
+		if (app.debugOutput) console.log("********* NLAlert NlalertScreen onShown");
 		buttonsEnabled(false);
 		// Initialize new NL-Alert data request and clear the list model view
 		updateNlalertFilter();
@@ -123,24 +123,24 @@ Screen {
 			}
         }
 		
-		console.log("********* NLAlert fillScreenModel count: " + nlAlertModelScreen.count);
+		if (app.debugOutput) console.log("********* NLAlert fillScreenModel count: " + nlAlertModelScreen.count);
     }
 
 	// Is there an empty alertLocation in the listmodel?
     function emptyAlertLocationInNlAlertModel() {
         for (var n=0; n < nlAlertListModel.count; n++) {
             if (nlAlertListModel.get(n).alertLocation.length == 0 ) {
-                console.log("********* NLAlert emptyAlertLocationInNlAlertModel: True" );
+                if (app.debugOutput) console.log("********* NLAlert emptyAlertLocationInNlAlertModel: True" );
                 return true;
             }
         }
 
-        console.log("********* NLAlert emptyAlertLocationInNlAlertModel: False" );
+        if (app.debugOutput) console.log("********* NLAlert emptyAlertLocationInNlAlertModel: False" );
         return false;
     }
 
 	function refreshData() {
-		console.log("********* NLAlert refreshData");
+		if (app.debugOutput) console.log("********* NLAlert refreshData");
 		refreshButton.enabled = false;
 		nlAlertModelScreen.clear();
 		nlAlertModel.clear();
@@ -279,7 +279,7 @@ Screen {
         running: false
         repeat: false
         onTriggered: {
-            console.log("********* NLAlert setEnableRefreshButtonTimer start");
+            if (app.debugOutput) console.log("********* NLAlert setEnableRefreshButtonTimer start");
             refreshButton.enabled = true;
         }
 

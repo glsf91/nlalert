@@ -60,6 +60,8 @@ App {
 	// remember last notification for which message id 
 	property string lastNotifyId : ""
 
+	property bool debugOutput : false						// Show console messages. Turn on in settings file !
+
     property bool debug : false
 
 
@@ -115,8 +117,14 @@ App {
 			}		
 
 			nlalertHostname	= nlalertHostnameFile.read();
-			console.log("********* NLAlert onCompleted hostname: " + nlalertHostname);
+			if (debugOutput) console.log("********* NLAlert onCompleted hostname: " + nlalertHostname);
 			
+			if (nlalertSettingsJson['DebugOn'] == "Yes") {
+				debugOutput = true
+			} else {
+				debugOutput = false
+			}
+
 		} catch(e) {
 		}
 
@@ -136,7 +144,7 @@ App {
 
 	function saveSettings() {
 		// save user settings
-		console.log("********* NLAlert saveSettings");
+		if (debugOutput) console.log("********* NLAlert saveSettings");
 
 		var tmpTrayIcon = "";
 		if (enableSystray == true) {
@@ -151,14 +159,23 @@ App {
 		} else {
 			tmpFilterEnabled = "No";
 		}
+
+		var tmpDebugOn = "";
+		if (debugOutput == true) {
+			tmpDebugOn = "Yes";
+		} else {
+			tmpDebugOn = "No";
+		}
 		
+
  		var tmpUserSettingsJson = {
 			"Latitude"      : nlalertownLatitude,
 			"Longitude"     : nlalertownLongitude,
 			"RegioRange"    : nlalertRegioRange,
 			"Duration"      : nlalertShowTileAlertsDurationHours,
  			"TrayIcon"      : tmpTrayIcon,
-			"filterEnabled" : tmpFilterEnabled
+			"filterEnabled" : tmpFilterEnabled,
+			"DebugOn"		: tmpDebugOn
 		}
 
   		var doc = new XMLHttpRequest();
@@ -186,7 +203,7 @@ App {
 
 	// Get NL-Alert data
     function refreshNLAlertData() {
-        console.log("********* NLAlert refreshNL-AlertData started");
+        if (debugOutput) console.log("********* NLAlert refreshNL-AlertData started");
 
 		nlalertDataRead = false;
         tileStatus = "Ophalen gegevens.....";
@@ -196,7 +213,7 @@ App {
         if (debug) {
 			nlalertDataRead = true;
             readNLAlertResponse();  // debug
-            console.log("********* NLAlert refreshNL-AlertData debug on");
+            if (debugOutput) console.log("********* NLAlert refreshNL-AlertData debug on");
 			tileStatus = "Debug aan.....";
             return;
         }
@@ -206,15 +223,15 @@ App {
 		xmlhttp.setRequestHeader("User-Agent", "okhttp/3.12.1");
 		
         xmlhttp.onreadystatechange = function() {
-            console.log("********* NLAlert refreshNL-AlertData readyState: " + xmlhttp.readyState );
+            if (debugOutput) console.log("********* NLAlert refreshNL-AlertData readyState: " + xmlhttp.readyState );
             if (xmlhttp.readyState == XMLHttpRequest.DONE) {
-				console.log("********* NLAlert refreshNL-AlertData http status: " + xmlhttp.status);
+				if (debugOutput) console.log("********* NLAlert refreshNL-AlertData http status: " + xmlhttp.status);
 
 				nlalartLastResponseStatus = xmlhttp.status;
 				nlalertDataRead = true;
 
-//				console.log("********* NLAlert refreshNL-AlertData NL-Alert headers received: " + xmlhttp.getAllResponseHeaders());
-//				console.log("********* NLAlert refreshNL-AlertData NL-Alert data received: " + xmlhttp.responseText);
+//				if (debugOutput) console.log("********* NLAlert refreshNL-AlertData NL-Alert headers received: " + xmlhttp.getAllResponseHeaders());
+//				if (debugOutput) console.log("********* NLAlert refreshNL-AlertData NL-Alert data received: " + xmlhttp.responseText);
 
 				// save headers
 				var doc1 = new XMLHttpRequest();
@@ -239,7 +256,7 @@ App {
 					if (xmlhttp.status == 429) {  //  Too Many Requests
 						nlalertScreen.refreshButtonEnabled(false);  // Don't allow manual refresh
 						var retryAfter = xmlhttp.getResponseHeader("retry-after");
-						console.log("********* NLAlert refreshNL-AlertData NL-Alert header retry-after: " + retryAfter);
+						if (debugOutput) console.log("********* NLAlert refreshNL-AlertData NL-Alert header retry-after: " + retryAfter);
 						if ( retryAfter <= 2) { 
 							retryAfter = 3;
 						}
@@ -248,10 +265,10 @@ App {
 							nlalertTimer.interval = (retryAfter * 1000) + 500;
 							nlalertTimer.start();
 							nlalertRetry = nlalertRetry +1;
-							console.log("********* NLAlert refreshNL-AlertData schedule retry: " + nlalertRetry + " at " + (new Date().toLocaleString('nl-NL')) );
+							if (debugOutput) console.log("********* NLAlert refreshNL-AlertData schedule retry: " + nlalertRetry + " at " + (new Date().toLocaleString('nl-NL')) );
 							tileStatus = "Mislukt, start poging " + nlalertRetry + ".....";
 						} else {
-							console.log("********* NLAlert refreshNL-AlertData Too much retries. Wait for regular refresh");
+							if (debugOutput) console.log("********* NLAlert refreshNL-AlertData Too much retries. Wait for regular refresh");
 							nlalertScreen.refreshButtonEnabled(true);  // Allow manual refresh
 						}
 					}
@@ -265,12 +282,12 @@ App {
 	// Popup an alarm when NL-Alert in area range received and not yet notified
 	function notifyUser() {
 		var n;
-		console.log("********* NLAlert notifyUser");
+		if (debugOutput) console.log("********* NLAlert notifyUser");
 		
 		// Only get the first NL-Alert message in the area or regio range
         for (n=0; n < nlalertScreen.nlAlertListModel.count; n++) {
             if (nlalertScreen.nlAlertListModel.get(n).regio || nlalertScreen.nlAlertListModel.get(n).inArea) {
-				console.log("********* NLAlert notifyUser regio or area message found:" +  nlalertScreen.nlAlertListModel.get(n).alertId);
+				if (debugOutput) console.log("********* NLAlert notifyUser regio or area message found:" +  nlalertScreen.nlAlertListModel.get(n).alertId);
 				break;
 			}
 		}
@@ -295,7 +312,7 @@ App {
 				}
 				
 				if (alarmPopup.visible == false) {
-					console.log("********* NLAlert notifyUser start alarmPopup" );
+					if (debugOutput) console.log("********* NLAlert notifyUser start alarmPopup" );
 					alarmPopup.show();
 					stage.openFullscreen(nlalertScreenUrl);
 				}
@@ -320,7 +337,7 @@ App {
 	}
 
 	function locationInArea(area,lon,lat){
-		console.log("********* NLAlert processArea" );
+		if (debugOutput) console.log("********* NLAlert processArea" );
 		var points = [];
 		var last;
 
@@ -365,26 +382,26 @@ App {
 				var areaCenter = nlAlertData['data'][i]['areaCenter'];
 				var area = nlAlertData['data'][i]['area'];
 
-				console.log("********* NLAlert processNlAlertData id: " + id );
-				console.log("********* NLAlert processNlAlertData time: " + time );
-				console.log("********* NLAlert processNlAlertData status: " + status );
-				console.log("********* NLAlert processNlAlertData description: " + description );
-				console.log("********* NLAlert processNlAlertData areaCenter.latitude: " + areaCenter.latitude );
-				console.log("********* NLAlert processNlAlertData areaCenter.longitude: " + areaCenter.longitude );
-				console.log("********* NLAlert processNlAlertData area len: " + area.length );
+				if (debugOutput) console.log("********* NLAlert processNlAlertData id: " + id );
+				if (debugOutput) console.log("********* NLAlert processNlAlertData time: " + time );
+				if (debugOutput) console.log("********* NLAlert processNlAlertData status: " + status );
+				if (debugOutput) console.log("********* NLAlert processNlAlertData description: " + description );
+				if (debugOutput) console.log("********* NLAlert processNlAlertData areaCenter.latitude: " + areaCenter.latitude );
+				if (debugOutput) console.log("********* NLAlert processNlAlertData areaCenter.longitude: " + areaCenter.longitude );
+				if (debugOutput) console.log("********* NLAlert processNlAlertData area len: " + area.length );
 
 				nlalertDate = new Date(time);
 				timediff = getHoursBetweenDates(now,nlalertDate);
-//				console.log("********* NLAlert processNlAlertData difference time in hours: " + timediff );
+//				if (debugOutput) console.log("********* NLAlert processNlAlertData difference time in hours: " + timediff );
 
 				distance = Math.round(haversineDistance(areaCenter.latitude,areaCenter.longitude,nlalertownLatitude,nlalertownLongitude));
 
 				inArea = locationInArea(area,nlalertownLongitude,nlalertownLatitude);
 				if (inArea) {
-					console.log("********* NLAlert processNlAlertData Alert in Area");
+					if (debugOutput) console.log("********* NLAlert processNlAlertData Alert in Area");
 					distance = 0;
 				} else {
-					console.log("********* NLAlert processNlAlertData Alert NOT in Area");
+					if (debugOutput) console.log("********* NLAlert processNlAlertData Alert NOT in Area");
 				}
 
 				// Count alerts in alert area and show icon
@@ -415,10 +432,10 @@ App {
 									 inArea: inArea});
 			}
 		} catch(e) {
-			console.log("********* NLAlert processNlAlertData catch: " + e );
+			if (debugOutput) console.log("********* NLAlert processNlAlertData catch: " + e );
 		}
 
-//		console.log("********* NLAlert processNlAlertData count in model: " + nlalertScreen.nlAlertListModel.count );
+//		if (debugOutput) console.log("********* NLAlert processNlAlertData count in model: " + nlalertScreen.nlAlertListModel.count );
 
         if (nlalertScreen.nlAlertListModel.count > 0) {
             processReverseGEOCache();
@@ -440,7 +457,7 @@ App {
 
 	// Get reverse GEO for coordinates
     function getReverseGEO(index) {
-        console.log("********* NLAlert getReverseGEO started voor index:" + index);
+        if (debugOutput) console.log("********* NLAlert getReverseGEO started voor index:" + index);
 
         tileStatus = "Ophalen GEO gegevens.....";
 
@@ -453,14 +470,14 @@ App {
 		// Needs emailadress and must be unique for every Toon because of policy with rate limit
         var url = "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=" + latitude + "&lon=" + longitude +
                     "&email=" + nlalertHostname + "@gmail.com" + "&accept-language=nl-NL";
-        console.log("********* NLAlert getReverseGEO url " + url );
+        if (debugOutput) console.log("********* NLAlert getReverseGEO url " + url );
 
         xmlhttp.open("GET", url, true);
         xmlhttp.onreadystatechange = function() {
-            console.log("********* NLAlert getReverseGEO readyState: " + xmlhttp.readyState + " http status: " + xmlhttp.status);
+            if (debugOutput) console.log("********* NLAlert getReverseGEO readyState: " + xmlhttp.readyState + " http status: " + xmlhttp.status);
             if (xmlhttp.readyState == XMLHttpRequest.DONE ) {
 				if (xmlhttp.status == 200) {
-					console.log("********* NLAlert getReverseGEO response " + xmlhttp.responseText );
+					if (debugOutput) console.log("********* NLAlert getReverseGEO response " + xmlhttp.responseText );
 
 					geoData = JSON.parse(xmlhttp.responseText);
 
@@ -470,7 +487,7 @@ App {
 						   ((geoData.address.suburb) ? geoData.address.suburb : "") + " " +
 						   ((geoData.address.road) ? geoData.address.road : "");
 
-					console.log("********* NLAlert getReverseGEO alertLocation:" + alertLocation );
+					if (debugOutput) console.log("********* NLAlert getReverseGEO alertLocation:" + alertLocation );
 					nlalertScreen.nlAlertListModel.set(index, {"alertLocation": alertLocation});
 
 					// If there are more alerts with same location, copy alertLocation
@@ -484,7 +501,7 @@ App {
 					getReverseGEOTimer.start();
 				} else {
 					nlalertScreen.nlAlertListModel.set(index, {"alertLocation": "N/A"});
-					console.log("********* NLAlert getReverseGEO fout opgetreden bij ophalen alertLocation voor index: " + index );
+					if (debugOutput) console.log("********* NLAlert getReverseGEO fout opgetreden bij ophalen alertLocation voor index: " + index );
 					// process next one after a few seconds
 					getReverseGEOTimer.start();
 				}
@@ -495,10 +512,10 @@ App {
 
 	// Use GEO cache as much as possible
     function processReverseGEOCache() {
-        console.log("********* NLAlert processReverseGEOCache" );
+        if (debugOutput) console.log("********* NLAlert processReverseGEOCache" );
 
         if (geoReverseDataCache.length == 0) {    // cache empty ?
-			console.log("********* NLAlert processReverseGEOCache cache empty" );
+			if (debugOutput) console.log("********* NLAlert processReverseGEOCache cache empty" );
             return;
         }
 
@@ -509,7 +526,7 @@ App {
                             nlalertScreen.nlAlertListModel.get(n).longitude == geoReverseDataCache['locations'][i]['longitude'] &&
                             nlalertScreen.nlAlertListModel.get(n).alertLocation.length == 0 ) {
                         nlalertScreen.nlAlertListModel.set(n, {"alertLocation": geoReverseDataCache['locations'][i]['alertLocation']});
-						console.log("********* NLAlert processReverseGEOCache found in cache alertLocation: " + geoReverseDataCache['locations'][i]['alertLocation']);
+						if (debugOutput) console.log("********* NLAlert processReverseGEOCache found in cache alertLocation: " + geoReverseDataCache['locations'][i]['alertLocation']);
                     }
                 }
             }
@@ -518,7 +535,7 @@ App {
     }
 
     function getAllReverseGEO() {
-        console.log("********* NLAlert getAllReverseGEO" );
+        if (debugOutput) console.log("********* NLAlert getAllReverseGEO" );
         var n;
 		var errorOccured = false;
 
@@ -571,7 +588,7 @@ App {
 			geoReverseDataCache = JSON.parse(nlalertGEOCacheFile.read());
 			
 			if (geoReverseDataCache['locations'].length > 0) {
-				console.log("********* NLAlert readReverseGEOCache file data found");
+				if (debugOutput) console.log("********* NLAlert readReverseGEOCache file data found");
 			}
 		} catch(e) {
 		}
@@ -586,7 +603,7 @@ App {
 		}
 
 		if (nlAlertData['data'].length > 0) {
-			console.log("********* NLAlert readNLAlertResponse file data found");
+			if (debugOutput) console.log("********* NLAlert readNLAlertResponse file data found");
 			processNlAlertData();
 		}
     }
@@ -598,11 +615,11 @@ App {
 		} catch(e) {
 			lastNotifyId = "";
 		}
-		console.log("********* NLAlert readNLAlertLastAlarm id: " + lastNotifyId );
+		if (debugOutput) console.log("********* NLAlert readNLAlertLastAlarm id: " + lastNotifyId );
     }
 
     function saveNLAlertLastAlarmId(id){  
-		console.log("********* NLAlert saveNLAlertLastAlarmId");
+		if (debugOutput) console.log("********* NLAlert saveNLAlertLastAlarmId");
 
 		var doc = new XMLHttpRequest();
 		doc.open("PUT", "file:///tmp/nlalert-last-alarm.json");
@@ -617,7 +634,7 @@ App {
         running: false
         repeat: false
         onTriggered: {
-            console.log("********* NLAlert getReverseGEOTimer start");
+            if (debugOutput) console.log("********* NLAlert getReverseGEOTimer start");
             getAllReverseGEO();
         }
 
@@ -630,7 +647,7 @@ App {
 		running: false
 		repeat: true
 		onTriggered: {
-			console.log("********* NLAlert nlalertTimer start " + (new Date().toLocaleString('nl-NL')));
+			if (debugOutput) console.log("********* NLAlert nlalertTimer start " + (new Date().toLocaleString('nl-NL')));
 			interval = nlalertRefreshIntervalMinutes * 60 * 1000;  // change interval to x minutes
 			readReverseGEOCache();
 			refreshNLAlertData();		
