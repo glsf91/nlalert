@@ -34,7 +34,7 @@ Tile {
 			family: qfont.bold.name
 			pixelSize: isNxt ? 25 : 20
 		}
-		color: colors.waTileTextColor
+		color: (typeof dimmableColors !== 'undefined') ? dimmableColors.waTileTextColor : colors.waTileTextColor
        	visible: dimState ? app.nlalertIconShow : false	
 	}
 
@@ -52,7 +52,7 @@ Tile {
 			family: qfont.bold.name
 			pixelSize: isNxt ? 25 : 20
 		}
-		color: colors.waTileTextColor
+		color: (typeof dimmableColors !== 'undefined') ? dimmableColors.waTileTextColor : colors.waTileTextColor
        		visible: !dimState
 	}
 
@@ -69,7 +69,7 @@ Tile {
 			family: qfont.bold.name
 			pixelSize: isNxt ? 22 : 18
 		}
-		color: colors.waTileTextColor
+		color: (typeof dimmableColors !== 'undefined') ? dimmableColors.waTileTextColor : colors.waTileTextColor
        	visible: !dimState
 	}
 
@@ -85,7 +85,7 @@ Tile {
 			family: qfont.regular.name
 			pixelSize: isNxt ? 22 : 18
 		}
-		color: colors.clockTileColor
+		color: (typeof dimmableColors !== 'undefined') ? dimmableColors.clockTileColor : colors.clockTileColor
         visible: !dimState
 	}
 
@@ -100,7 +100,7 @@ Tile {
 			family: qfont.bold.name
 			pixelSize: isNxt ? 22 : 18
 		}
-		color: colors.waTileTextColor
+		color: (typeof dimmableColors !== 'undefined') ? dimmableColors.waTileTextColor : colors.waTileTextColor
        	visible: !dimState
 	}
 
@@ -115,7 +115,7 @@ Tile {
 			family: qfont.regular.name
 			pixelSize: isNxt ? 18 : 15
 		}
-		color: colors.clockTileColor
+		color: (typeof dimmableColors !== 'undefined') ? dimmableColors.clockTileColor : colors.clockTileColor
         visible: !dimState
 	}
 
@@ -130,7 +130,7 @@ Tile {
 			family: qfont.bold.name
 			pixelSize: isNxt ? 22 : 18
 		}
-		color: colors.waTileTextColor
+		color: (typeof dimmableColors !== 'undefined') ? dimmableColors.waTileTextColor : colors.waTileTextColor
        	visible: !dimState
 	}
 
@@ -145,7 +145,7 @@ Tile {
 			family: qfont.regular.name
 			pixelSize: isNxt ? 18 : 15
 		}
-		color: colors.clockTileColor
+		color: (typeof dimmableColors !== 'undefined') ? dimmableColors.clockTileColor : colors.clockTileColor
         visible: !dimState
 	}
 
@@ -161,14 +161,14 @@ Tile {
 			family: qfont.bold.name
 			pixelSize: isNxt ? 22 : 18
 		}
-		color: colors.waTileTextColor
+		color: (typeof dimmableColors !== 'undefined') ? dimmableColors.waTileTextColor : colors.waTileTextColor
        	visible: !dimState
 	}
 
 	Text {
 		id: txtStatus
 		text: app.tileStatus
-		color: colors.clockTileColor
+		color: (typeof dimmableColors !== 'undefined') ? dimmableColors.clockTileColor : colors.clockTileColor
 		anchors {
 			top: statusText.bottom
 			horizontalCenter: parent.horizontalCenter

@@ -1,3 +1,6 @@
+1.2.2
+- dimmableColors update
+
 Version 1.2.1
 - disable console log messages by default
 
