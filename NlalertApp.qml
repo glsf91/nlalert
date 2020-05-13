@@ -92,7 +92,7 @@ App {
 
 	FileIO {
 		id: nlalertLastAlarmFile
-		source: "file:///tmp/nlalert-last-alarm.json"
+		source: "file:///mnt/data/tsc/nlalert.last-alarm.json"
  	}
 
 	Component.onCompleted: {
@@ -622,7 +622,7 @@ App {
 		if (debugOutput) console.log("********* NLAlert saveNLAlertLastAlarmId");
 
 		var doc = new XMLHttpRequest();
-		doc.open("PUT", "file:///tmp/nlalert-last-alarm.json");
+		doc.open("PUT", "file:///mnt/tsc/data/nlalert.last-alarm.json");
 		doc.send(id);
     }
 
