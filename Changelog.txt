@@ -1,3 +1,6 @@
+1.2.4
+- fixed old alert is displayed after restart gui because of mistake in permanent file location
+
 1.2.3
 - moved last alert check file to permanent location so after reboot old alerts are not displayed again
 
