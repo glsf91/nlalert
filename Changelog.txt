@@ -1,3 +1,6 @@
+1.2.5
+- skip alerts which are more then 7 days old
+
 1.2.4
 - fixed old alert is displayed after restart gui because of mistake in permanent file location
 

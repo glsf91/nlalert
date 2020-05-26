@@ -394,6 +394,11 @@ App {
 				timediff = getHoursBetweenDates(now,nlalertDate);
 //				if (debugOutput) console.log("********* NLAlert processNlAlertData difference time in hours: " + timediff );
 
+				// skip recurring messages which are more then 7 days old
+				if (timediff > 170) {
+					continue;
+				}
+
 				distance = Math.round(haversineDistance(areaCenter.latitude,areaCenter.longitude,nlalertownLatitude,nlalertownLongitude));
 
 				inArea = locationInArea(area,nlalertownLongitude,nlalertownLatitude);
