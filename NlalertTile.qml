@@ -118,7 +118,7 @@ Tile {
 		color: (typeof dimmableColors !== 'undefined') ? dimmableColors.clockTileColor : colors.clockTileColor
         visible: !dimState
 	}
-
+/*
 	Text {
 		id: regioText
 		text: "In uw regio"
@@ -148,13 +148,13 @@ Tile {
 		color: (typeof dimmableColors !== 'undefined') ? dimmableColors.clockTileColor : colors.clockTileColor
         visible: !dimState
 	}
-
+*/
 
 	Text {
 		id: statusText
 		text: "Status"
 		anchors {
-			top: regioText.bottom
+			bottom: txtStatus.top
 			horizontalCenter: parent.horizontalCenter
 		}
 		font {
@@ -170,7 +170,8 @@ Tile {
 		text: app.tileStatus
 		color: (typeof dimmableColors !== 'undefined') ? dimmableColors.clockTileColor : colors.clockTileColor
 		anchors {
-			top: statusText.bottom
+			bottom: parent.bottom
+			bottomMargin: 10
 			horizontalCenter: parent.horizontalCenter
 		}
 		font.pixelSize: isNxt ? 20 : 16

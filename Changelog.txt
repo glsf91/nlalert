@@ -1,3 +1,7 @@
+1.3.0
+- Using now another data source for NL-alert messages. 
+- Alert location and distance is not available anymore. If you are in the area alarms goes off.
+
 1.2.5
 - skip alerts which are more then 7 days old
 

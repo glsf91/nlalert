@@ -29,7 +29,7 @@ Rectangle {
 		font.pixelSize: isNxt ? 20 : 16
 	}
 
-	Text {
+/*	Text {
 		id: txtAlertLocation
 		anchors.left: txtAlertTime.right
 		anchors.leftMargin: 10
@@ -54,7 +54,7 @@ Rectangle {
 		font.pixelSize: isNxt ? 20 : 16
 		color: colorDistance(distance)
 	}
-
+*/
 	Text {
 		id:txtDescription
 		x: 10
