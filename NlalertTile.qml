@@ -113,7 +113,7 @@ Tile {
 		}
 		font {
 			family: qfont.regular.name
-			pixelSize: isNxt ? 18 : 15
+			pixelSize: isNxt ? 22 : 18
 		}
 		color: (typeof dimmableColors !== 'undefined') ? dimmableColors.clockTileColor : colors.clockTileColor
         visible: !dimState
