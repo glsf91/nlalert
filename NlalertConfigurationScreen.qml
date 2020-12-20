@@ -13,7 +13,6 @@ Screen {
 		enableSystrayToggle.isSwitchedOn = app.enableSystray;
 		lonLabel.inputText = app.nlalertownLongitude;
 		latLabel.inputText = app.nlalertownLatitude;
-		rangeRegioLabel.inputText = app.nlalertRegioRange;
 		durationLabel.inputText = app.nlalertShowTileAlertsDurationHours;
 		qrCodeID = Math.random().toString(36).substring(7);
 		qrCode.content = "https://qutility.nl/geolocation/getlocation.php?id="+qrCodeID;
@@ -49,14 +48,6 @@ Screen {
 		if (text) {
 			app.nlalertownLatitude = (Math.round(parseFloat(text.replace(",", ".")) * 10000) / 10000);
 			latLabel.inputText = app.nlalertownLatitude;
-	   		app.saveSettings();
-		}
-	}
-
-	function saveRegioRange(text) {
-		if (text) {
-			app.nlalertRegioRange = parseInt(text);
-			rangeRegioLabel.inputText = app.nlalertRegioRange;
 	   		app.saveSettings();
 		}
 	}
@@ -179,59 +170,6 @@ Screen {
 
 
 	EditTextLabel4421 {
-		id: rangeRegioLabel
-		width: lonLabel.width
-		height: isNxt ? 45 : 35
-		leftText: "Range regio:"
-		leftTextAvailableWidth: isNxt ?  175 : 140
-
-		anchors {
-			left: lonLabel.left
-			top: latLabel.bottom
-			topMargin: 12
-		}
-
-		onClicked: {
-			qnumKeyboard.open("Range regio in km", rangeRegioLabel.inputText, app.nlalertRegioRange, 1 , saveRegioRange, validateCoordinate);
-		}
-	}
-
-	IconButton {
-		id: rangeRegioButton
-		width: isNxt ? 50 : 40
-		iconSource: "qrc:/tsc/edit.png"
-
-		anchors {
-			left: rangeRegioLabel.right
-			leftMargin: 6
-			top: rangeRegioLabel.top
-		}
-
-		topClickMargin: 3
-		onClicked: {
-			qnumKeyboard.open("Range regio in km", rangeRegioLabel.inputText, app.nlalertRegioRange, 1 , saveRegioRange, validateCoordinate);
-		}
-	}
-
-	Text {
-		id: uitlegRegioRange
-		text: "Geeft de afstand in km aan tot het NL-Alert centrum punt in een rechte lijn, welke als regio moet worden gezien. Wordt ook meegenomen in de alarm popup."
-       		width: isNxt ? 500 : 400
-			wrapMode: Text.WordWrap
-		anchors {
-			left: rangeRegioButton.right
-			leftMargin: 20
-			top: rangeRegioLabel.top
-		}
-		font {
-			family: qfont.semiBold.name
-			pixelSize: isNxt ? 20 : 16
-		}
-		color: colors.rbTitle
-	}
-
-
-	EditTextLabel4421 {
 		id: durationLabel
 		width: lonLabel.width
 		height: isNxt ? 45 : 35
@@ -240,8 +178,9 @@ Screen {
 
 		anchors {
 			left: lonLabel.left
-			top: rangeRegioLabel.bottom
-			topMargin: isNxt ? 65 : 50
+			top: latLabel.bottom
+//			topMargin: isNxt ? 65 : 50
+			topMargin: 6
 		}
 
 		onClicked: {

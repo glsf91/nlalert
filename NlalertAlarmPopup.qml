@@ -8,13 +8,9 @@ Popup {
 
 	property string curState: ""
 	property string messageText : ""
-	property bool regio : false
 	
 	onShown: {
 		bigText.text = "NL-Alert alarm";
-		if (regio) {
-			bigText.text = bigText.text + " (regio)";
-		}
 		background.color = "#cc3300"; 
 		smallText.text = messageText;
 	

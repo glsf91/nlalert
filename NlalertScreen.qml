@@ -4,7 +4,7 @@ import qb.components 1.0
 
 Screen {
 	id: nlalertScreen
-	screenTitle: "NL-Alerts van de afgelopen 7 dagen"
+	screenTitle: "NL-Alerts van de afgelopen " + app.daysNLalertData + " dagen (max 10)"
 
 	property alias nlAlertListModel: nlAlertModel
 
@@ -58,7 +58,7 @@ Screen {
 		if(!app.nlalertDataRead) return str;
 
 		if (app.nlalertFilterEnabled) {
-			str += "NL-Alert (Relevant voor u en in de regio): ";
+			str += "NL-Alert (Relevant voor u): ";
 		} else {
 			str += "NL-Alert (alles): ";
 		}
@@ -110,33 +110,16 @@ Screen {
         nlAlertModelScreen.clear();
 
         for (var n=0; n < nlAlertListModel.count; n++) {
-			// Update if not filtered or filtered and in range of regio distance
+			// Update if not filtered or filtered and in range
 			if (!app.nlalertFilterEnabled || 
-			    (app.nlalertFilterEnabled && (nlAlertListModel.get(n).distance < app.nlalertRegioRange)) ) {
+			    (app.nlalertFilterEnabled && nlAlertListModel.get(n).inArea ) ) {
 			
 				nlAlertModelScreen.append({ alertTime : nlAlertListModel.get(n).alertTime,
-                                     latitude : nlAlertListModel.get(n).latitude,
-                                     longitude : nlAlertListModel.get(n).longitude,
-                                     alertLocation : nlAlertListModel.get(n).alertLocation,
-                                     description : nlAlertListModel.get(n).description,
-                                     distance : nlAlertListModel.get(n).distance});
+                                     description : nlAlertListModel.get(n).description});
 			}
         }
 		
 		if (app.debugOutput) console.log("********* NLAlert fillScreenModel count: " + nlAlertModelScreen.count);
-    }
-
-	// Is there an empty alertLocation in the listmodel?
-    function emptyAlertLocationInNlAlertModel() {
-        for (var n=0; n < nlAlertListModel.count; n++) {
-            if (nlAlertListModel.get(n).alertLocation.length == 0 ) {
-                if (app.debugOutput) console.log("********* NLAlert emptyAlertLocationInNlAlertModel: True" );
-                return true;
-            }
-        }
-
-        if (app.debugOutput) console.log("********* NLAlert emptyAlertLocationInNlAlertModel: False" );
-        return false;
     }
 
 	function refreshData() {
@@ -146,7 +129,6 @@ Screen {
 		nlAlertModel.clear();
 		app.nlalartLastResponseStatus = 0;  // reset otherwise wrong messages shown
 		updateNlalertFilter();				// Update screen
-		app.readReverseGEOCache();
 		app.refreshNLAlertData();			// Refresh data
 		setEnableRefreshButtonTimer.start();
 	}
