@@ -1,3 +1,7 @@
+1.3.2
+- Fix failure when <div class="statusoverzicht">ACTIEF</div> is before date string
+- change response file from json to html extension
+
 1.3.1
 - Using now another data source for NL-alert messages. 
 - Alert location and distance is not available anymore. If you are in the area alarms goes off.

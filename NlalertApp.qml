@@ -81,7 +81,7 @@ App {
 
 	FileIO {
 		id: nlalertResponseFile
-		source: "file:///tmp/nlalert-response.json"
+		source: "file:///tmp/nlalert-response.html"
  	}
 
 	FileIO {
@@ -244,7 +244,7 @@ App {
 
 				// save response
 				var doc2 = new XMLHttpRequest();
-				doc2.open("PUT", "file:///tmp/nlalert-response.json");
+				doc2.open("PUT", "file:///tmp/nlalert-response.html");
 				doc2.send(xmlhttp.responseText);
 
 				if (xmlhttp.status == 200) {
@@ -272,6 +272,7 @@ App {
         var alertId;
 		var timediff;
 		var nlalertDate;
+		var alertDateTmp;
 		
 		// Count for Tile
 		nlalertInsideAreaAlerts = 0;
@@ -296,7 +297,8 @@ App {
 
 			n1 = alertArray[alertCount].indexOf('<h3>') + 4;
 			n2 = alertArray[alertCount].indexOf('</h3>', n1);
-			alertDate = alertArray[alertCount].substring(n1, n2);
+			alertDateTmp = alertArray[alertCount].substring(n1, n2);
+			alertDate = alertDateTmp.replace(/(<div.*<\/div>)?/,"");
 
 			n1 = alertArray[alertCount].indexOf('<p class=\"results\">') + 19;
 			n2 = alertArray[alertCount].indexOf('</p>', n1);
